@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四环医药 × 钉钉AI 数字化工作台</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e27;--bg2:#121842;--card:rgba(30,38,85,0.6);--purple:#7b61ff;--pink:#f472b6;--text:#fff;--dim:#a0aec0;--border:rgba(123,97,255,0.2);--success:#00ff88;--warn:#ffaa00;--danger:#ff4466}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:linear-gradient(135deg,#0a0e27,#1a1040);color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:240px;background:linear-gradient(180deg,var(--bg2),var(--bg));border-right:1px solid var(--border);position:fixed;height:100vh;overflow-y:auto;z-index:100;padding:20px 0}
+.logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px;font-size:16px;font-weight:800;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav{list-style:none}.nav li{margin:4px 10px}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 14px;color:var(--dim);text-decoration:none;border-radius:10px;transition:.3s;cursor:pointer;border:1px solid transparent;font-size:14px}
+.nav a:hover,.nav a.active{background:rgba(123,97,255,0.1);color:var(--purple);border-color:var(--border)}
+.main{flex:1;margin-left:240px;min-height:100vh}
+.header{background:var(--card);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.header h1{font-size:20px;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.user{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--card);border-radius:18px;border:1px solid var(--border)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.content{padding:24px 28px}.page{display:none}.page.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.kpi .v{font-size:2rem;font-weight:800;background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .l{color:var(--dim);font-size:.85rem;margin-top:4px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.panel h3{color:var(--purple);font-size:1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h3::before{content:'▸';color:var(--purple)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.chart-box{height:300px;width:100%}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:rgba(123,97,255,0.1);color:var(--purple);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--dim)}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:600}
+.b-green{background:rgba(0,255,136,0.15);color:var(--success)}.b-yellow{background:rgba(255,170,0,0.15);color:var(--warn)}.b-red{background:rgba(255,68,102,0.15);color:var(--danger)}.b-purple{background:rgba(123,97,255,0.15);color:var(--purple)}
+.chat-box{background:rgba(0,0,0,0.3);border-radius:12px;padding:16px;max-height:400px;overflow-y:auto}
+.msg{margin-bottom:12px;padding:10px 14px;border-radius:10px;font-size:.9rem;line-height:1.6;max-width:85%}
+.msg.ai{background:rgba(123,97,255,0.08);border:1px solid var(--border);color:var(--dim)}
+.msg.user{background:rgba(123,97,255,0.15);margin-left:auto;color:#fff}
+.quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.quick-btn{padding:6px 14px;border-radius:16px;border:1px solid var(--border);background:rgba(123,97,255,0.05);color:var(--purple);font-size:.82rem;cursor:pointer}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.status-item{background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:10px;padding:14px;text-align:center}
+.status-item .check{font-size:1.5rem;margin-bottom:6px}.status-item .name{color:var(--dim);font-size:.85rem}
+.connector{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:10px;margin-bottom:8px}
+.connector .dot{width:10px;height:10px;border-radius:50%;background:var(--success)}
+.project-card{background:rgba(123,97,255,0.05);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.project-card h4{color:#fff;margin-bottom:6px;font-size:.95rem}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--pink))}
+@media(max-width:768px){.sidebar{transform:translateX(-240px)}.main{margin-left:0}.grid2,.grid3{grid-template-columns:1fr}}</style></head>
+<body>
+<div class="sidebar"><div class="logo">💊 四环医药 × 钉钉AI</div>
+<ul class="nav">
+<li><a class="active" onclick="sw('home')"><span class="icon">📊</span>工作台首页</a></li>
+<li><a onclick="sw('finance')"><span class="icon">💰</span>业财一体化中心</a></li>
+<li><a onclick="sw('ai')"><span class="icon">🤖</span>AI数据分析助手</a></li>
+<li><a onclick="sw('invest')"><span class="icon">📈</span>投融资管理</a></li>
+<li><a onclick="sw('global')"><span class="icon">🌍</span>跨国协作中心</a></li>
+<li><a onclick="sw('security')"><span class="icon">🔒</span>安全合规中心</a></li>
+<li><a onclick="sw('tb')"><span class="icon">📋</span>研发项目管理</a></li>
+</ul></div>
+<div class="main"><div class="header"><h1>四环医药控股集团 · 数字化工作台</h1>
+<div class="user"><div class="avatar">四</div><span style="font-size:14px">管理员</span></div></div>
+<div class="content">
+
+<div id="home" class="page active">
+<div class="kpis"><div class="kpi"><div class="v">15</div><div class="l">今日待办</div></div><div class="kpi"><div class="v">6</div><div class="l">审批中</div></div><div class="kpi"><div class="v">30+</div><div class="l">在研管线</div></div><div class="kpi"><div class="v">2.18亿</div><div class="l">本月营收</div></div></div>
+<div class="grid2"><div class="panel"><h3>近6月营收趋势（创新药 vs 医美）</h3><div id="chart-revenue" class="chart-box"></div></div>
+<div class="panel"><h3>快捷入口</h3><div class="grid3" style="margin-top:12px"><div class="quick-btn" style="text-align:center;padding:20px">📝 发起审批</div><div class="quick-btn" style="text-align:center;padding:20px">🤖 AI助理</div><div class="quick-btn" style="text-align:center;padding:20px">💰 财务看板</div><div class="quick-btn" style="text-align:center;padding:20px">📋 项目管理</div><div class="quick-btn" style="text-align:center;padding:20px">📊 经营分析</div><div class="quick-btn" style="text-align:center;padding:20px">🌍 跨国会议</div></div></div></div>
+<div class="panel"><h3>最新公告</h3><table><tr><td><span class="badge b-purple">重要</span></td><td>惠升生物司美格鲁肽注射液NDA已获受理</td><td style="color:var(--dim)">2026-05-24</td></tr><tr><td><span class="badge b-green">喜报</span></td><td>2025年全年营收26.18亿元，同比增长37.7%</td><td style="color:var(--dim)">2026-05-22</td></tr><tr><td><span class="badge b-yellow">通知</span></td><td>CFO荣获格隆汇年度卓越CFO奖</td><td style="color:var(--dim)">2026-05-20</td></tr></table></div>
+</div>
+
+<div id="finance" class="page">
+<div class="kpis"><div class="kpi"><div class="v">26.18亿</div><div class="l">年度总营收</div></div><div class="kpi"><div class="v">+37.7%</div><div class="l">同比增长</div></div><div class="kpi"><div class="v">1.85亿</div><div class="l">归母净利润</div></div><div class="kpi"><div class="v">92%</div><div class="l">预算执行率</div></div></div>
+<div class="grid2"><div class="panel"><h3>各业务线月度收入对比</h3><div id="chart-stack" class="chart-box"></div></div><div class="panel"><h3>预算执行进度</h3><div id="chart-budget" class="chart-box"></div></div></div>
+<div class="panel"><h3>iPaaS连接器状态</h3><div class="grid3"><div class="connector"><div class="dot"></div><span>SAP ERP</span><span style="margin-left:auto;color:var(--success)">已连接</span></div><div class="connector"><div class="dot"></div><span>Oracle财务</span><span style="margin-left:auto;color:var(--success)">已连接</span></div><div class="connector"><div class="dot"></div><span>金蝶云星空</span><span style="margin-left:auto;color:var(--success)">已连接</span></div><div class="connector"><div class="dot"></div><span>招商银行CBS</span><span style="margin-left:auto;color:var(--success)">已连接</span></div><div class="connector"><div class="dot"></div><span>税务系统</span><span style="margin-left:auto;color:var(--success)">已连接</span></div><div class="connector"><div class="dot"></div><span>OA审批流</span><span style="margin-left:auto;color:var(--success)">已连接</span></div></div></div>
+<div class="panel"><h3>费用报销审批列表</h3><table><thead><tr><th>申请人</th><th>部门</th><th>金额(元)</th><th>类型</th><th>状态</th></tr></thead><tbody><tr><td>王晓明</td><td>医美事业部</td><td>28,500</td><td>差旅费</td><td><span class="badge b-yellow">待审批</span></td></tr><tr><td>李婷</td><td>轩竹生物</td><td>156,000</td><td>临床试验费</td><td><span class="badge b-yellow">待审批</span></td></tr><tr><td>陈伟</td><td>集团财务</td><td>12,800</td><td>办公采购</td><td><span class="badge b-green">已通过</span></td></tr></tbody></table></div>
+</div>
+
+<div id="ai" class="page">
+<div class="grid2"><div class="panel"><h3>AI经营数据问询</h3>
+<div class="chat-box"><div class="msg user">本季度医美业务收入同比增长多少？</div><div class="msg ai"><strong>📊 医美业务Q1收入分析：</strong><br><br>• Q1医美收入：3.82亿元，同比+99.6%<br>• 分部溢利：2.15亿元，同比+226%<br>• 核心驱动：乐提葆肉毒素同比+120%，少女针倾研首季贡献3,200万<br>• 渠道覆盖：新增680家，累计7,300+</div></div>
+<div class="quick-btns"><div class="quick-btn">本季度医美业务收入？</div><div class="quick-btn">惠升生物估值评估</div><div class="quick-btn">各子公司利润率排名</div><div class="quick-btn">异常费用预警</div></div>
+</div>
+<div class="panel"><h3>智能预警</h3><table><thead><tr><th>预警类型</th><th>描述</th><th>级别</th></tr></thead><tbody><tr><td>费用异常</td><td>医美事业部5月差旅费超预算18%</td><td><span class="badge b-yellow">中</span></td></tr><tr><td>应收逾期</td><td>3家经销商回款逾期>60天</td><td><span class="badge b-red">高</span></td></tr><tr><td>汇率波动</td><td>瑞士法郎兑人民币波动>2%</td><td><span class="badge b-yellow">中</span></td></tr></tbody></table></div></div>
+</div>
+
+<div id="invest" class="page">
+<div class="kpis"><div class="kpi"><div class="v">30亿+</div><div class="l">累计投融资规模</div></div><div class="kpi"><div class="v">5</div><div class="l">重点投资项目</div></div><div class="kpi"><div class="v">85亿</div><div class="l">惠升生物估值</div></div><div class="kpi"><div class="v">75亿</div><div class="l">累计分红</div></div></div>
+<div class="panel"><h3>投资组合看板</h3><div class="grid3"><div class="project-card"><h4>🧬 惠升生物</h4><p style="color:var(--dim);font-size:.85rem">糖尿病/减重 | Pre-IPO | 估值85亿</p><div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div></div><div class="project-card"><h4>🔬 轩竹生物</h4><p style="color:var(--dim);font-size:.85rem">肿瘤/消化 | 已上市3款药物</p><div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div></div><div class="project-card"><h4>🇨🇭 Suisselle</h4><p style="color:var(--dim);font-size:.85rem">瑞士医美 | 跨境并购 | 整合中</p><div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div></div></div></div>
+<div class="panel"><h3>估值趋势</h3><div id="chart-valuation" class="chart-box"></div></div>
+</div>
+
+<div id="global" class="page">
+<div class="panel"><h3>多地团队在线状态</h3><div class="grid3"><div class="status-item" style="text-align:left;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">🇭🇰 香港总部</div><div style="color:var(--dim);font-size:.85rem">🟢 在线 28人</div></div><div class="status-item" style="text-align:left;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">🇨🇳 北京研发中心</div><div style="color:var(--dim);font-size:.85rem">🟢 在线 45人</div></div><div class="status-item" style="text-align:left;padding:16px"><div style="font-size:1.2rem;margin-bottom:8px">🇨🇭 苏黎世办公室</div><div style="color:var(--dim);font-size:.85rem">⚪ 离线 (时差-6h)</div></div></div></div>
+<div class="grid2"><div class="panel"><h3>跨境会议日程</h3><table><thead><tr><th>时间</th><th>会议</th><th>参会方</th></tr></thead><tbody><tr><td>今天 14:00</td><td>惠升生物IPO进展周会</td><td>香港+北京</td></tr><tr><td>今天 16:30</td><td>Suisselle整合月报</td><td>香港+苏黎世</td></tr><tr><td>明天 10:00</td><td>医美产品线全球策略会</td><td>上海+香港+苏黎世</td></tr></tbody></table></div>
+<div class="panel"><h3>AI听记 - 最近会议转写</h3><table><thead><tr><th>会议</th><th>语言</th><th>时长</th></tr></thead><tbody><tr><td>惠升生物董事会</td><td><span class="badge b-purple">中/英</span></td><td>120min</td></tr><tr><td>Suisselle整合周会</td><td><span class="badge b-purple">英/德</span></td><td>45min</td></tr><tr><td>医美渠道商大会</td><td><span class="badge b-purple">中文</span></td><td>180min</td></tr></tbody></table></div></div>
+</div>
+
+<div id="security" class="page">
+<div class="panel"><h3>数据安全状态</h3><div class="status-grid"><div class="status-item"><div class="check">✅</div><div class="name">企业密钥自管</div></div><div class="status-item"><div class="check">✅</div><div class="name">专属存储</div></div><div class="status-item"><div class="check">✅</div><div class="name">审计日志</div></div><div class="status-item"><div class="check">✅</div><div class="name">截屏禁止</div></div><div class="status-item"><div class="check">✅</div><div class="name">暗水印溯源</div></div><div class="status-item"><div class="check">✅</div><div class="name">跨境数据合规</div></div></div></div>
+<div class="panel"><h3>港股上市合规检查清单</h3><table><thead><tr><th>检查项</th><th>要求</th><th>状态</th></tr></thead><tbody><tr><td>内幕消息管控</td><td>敏感信息分级+访问控制</td><td><span class="badge b-green">合规</span></td></tr><tr><td>关联交易监控</td><td>自动识别+审批留痕</td><td><span class="badge b-green">合规</span></td></tr><tr><td>数据跨境传输</td><td>符合PDPO/GDPR要求</td><td><span class="badge b-green">合规</span></td></tr></tbody></table></div>
+</div>
+
+<div id="tb" class="page">
+<div class="kpis"><div class="kpi"><div class="v">30+</div><div class="l">在研管线总数</div></div><div class="kpi"><div class="v">3</div><div class="l">已上市药物</div></div><div class="kpi"><div class="v">2</div><div class="l">NDA审评中</div></div><div class="kpi"><div class="v">8</div><div class="l">III期临床</div></div></div>
+<div class="panel"><h3>重点管线进度</h3>
+<div class="project-card"><h4>💉 司美格鲁肽注射液（惠升生物）</h4><p style="color:var(--dim);font-size:.88rem">降糖NDA已受理 | 减重III期完成入组 | 预计2026年Q3获批</p><div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div></div>
+<div class="project-card"><h4>💊 吡洛西利（轩竹生物·CDK4/6抑制剂）</h4><p style="color:var(--dim);font-size:.88rem">已获批上市 | 乳腺癌一线治疗 | 医保谈判准备中</p><div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div></div>
+<div class="project-card"><h4>💊 地罗阿克（轩竹生物·ALK抑制剂）</h4><p style="color:var(--dim);font-size:.88rem">已获批上市 | NSCLC二线治疗 | 市场开拓中</p><div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div></div>
+</div>
+</div>
+
+</div></div>
+<script>
+function sw(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));document.getElementById(id).classList.add('active');event.currentTarget.classList.add('active')}
+var c1=echarts.init(document.getElementById('chart-revenue'));
+c1.setOption({tooltip:{trigger:'axis'},legend:{data:['创新药','医美'],textStyle:{color:'#a0aec0'}},grid:{left:'10%',right:'5%',top:'20%',bottom:'15%'},xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',axisLabel:{color:'#a0aec0',formatter:'{value}亿'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'创新药',type:'bar',stack:'t',data:[0.82,0.78,0.91,0.88,0.95,1.02],itemStyle:{color:'#7b61ff'}},{name:'医美',type:'bar',stack:'t',data:[1.12,1.08,1.28,1.22,1.35,1.48],itemStyle:{color:'#f472b6'}}]});
+var c2=echarts.init(document.getElementById('chart-stack'));
+c2.setOption({tooltip:{trigger:'axis'},legend:{data:['轩竹生物','惠升生物','医美','其他'],textStyle:{color:'#a0aec0'}},grid:{left:'10%',right:'5%',top:'20%',bottom:'15%'},xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',axisLabel:{color:'#a0aec0',formatter:'{value}万'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'轩竹生物',type:'bar',stack:'t',data:[3200,2800,3500,3100,3800,4200],itemStyle:{color:'#7b61ff'}},{name:'惠升生物',type:'bar',stack:'t',data:[1800,1600,2100,1900,2300,2800],itemStyle:{color:'#a78bfa'}},{name:'医美',type:'bar',stack:'t',data:[8200,7800,9500,8800,10200,11500],itemStyle:{color:'#f472b6'}},{name:'其他',type:'bar',stack:'t',data:[1200,1100,1400,1300,1500,1600],itemStyle:{color:'#64748b'}}]});
+var c3=echarts.init(document.getElementById('chart-budget'));
+c3.setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['50%','75%'],data:[{value:92,name:'已执行',itemStyle:{color:'#7b61ff'}},{value:8,name:'剩余',itemStyle:{color:'rgba(255,255,255,0.1)'}}],label:{color:'#a0aec0',formatter:'{b}\n{d}%'}}]});
+var c4=echarts.init(document.getElementById('chart-valuation'));
+c4.setOption({tooltip:{trigger:'axis'},grid:{left:'10%',right:'5%',top:'15%',bottom:'15%'},xAxis:{type:'category',data:['2023Q1','2023Q3','2024Q1','2024Q3','2025Q1','2025Q3'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',axisLabel:{color:'#a0aec0',formatter:'{value}亿'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'惠升生物',type:'line',smooth:true,data:[35,42,52,65,78,85],lineStyle:{color:'#7b61ff',width:3},itemStyle:{color:'#7b61ff'}},{name:'轩竹生物',type:'line',smooth:true,data:[28,32,38,42,48,55],lineStyle:{color:'#f472b6',width:3},itemStyle:{color:'#f472b6'}}]});
+window.addEventListener('resize',function(){c1.resize();c2.resize();c3.resize();c4.resize()});
+</script></body></html>

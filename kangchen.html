@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>康臣药业 × 钉钉AI 数字化工作台</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e27;--bg2:#121842;--card:rgba(30,38,85,0.6);--cyan:#00f5ff;--blue:#0066ff;--text:#fff;--dim:#a0aec0;--border:rgba(0,245,255,0.2);--success:#00ff88;--warn:#ffaa00;--danger:#ff4466}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:linear-gradient(135deg,#0a0e27,#1a1f4e);color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:240px;background:linear-gradient(180deg,var(--bg2),var(--bg));border-right:1px solid var(--border);position:fixed;height:100vh;overflow-y:auto;z-index:100;padding:20px 0}
+.logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px;font-size:16px;font-weight:800;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav{list-style:none}
+.nav li{margin:4px 10px}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 14px;color:var(--dim);text-decoration:none;border-radius:10px;transition:.3s;cursor:pointer;border:1px solid transparent;font-size:14px}
+.nav a:hover,.nav a.active{background:rgba(0,245,255,0.1);color:var(--cyan);border-color:var(--border)}
+.nav a .icon{width:18px;text-align:center;font-size:16px}
+.main{flex:1;margin-left:240px;min-height:100vh}
+.header{background:var(--card);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.header h1{font-size:20px;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.user{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--card);border-radius:18px;border:1px solid var(--border)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.content{padding:24px 28px}
+.page{display:none}.page.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.kpi .v{font-size:2rem;font-weight:800;background:linear-gradient(90deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .l{color:var(--dim);font-size:.85rem;margin-top:4px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.panel h3{color:var(--cyan);font-size:1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h3::before{content:'▸';color:var(--cyan)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.chart-box{height:300px;width:100%}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:rgba(0,245,255,0.1);color:var(--cyan);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--dim)}
+tr:hover td{background:rgba(0,245,255,0.03)}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:600}
+.b-green{background:rgba(0,255,136,0.15);color:var(--success)}
+.b-yellow{background:rgba(255,170,0,0.15);color:var(--warn)}
+.b-red{background:rgba(255,68,102,0.15);color:var(--danger)}
+.b-blue{background:rgba(0,245,255,0.15);color:var(--cyan)}
+.chat-box{background:rgba(0,0,0,0.3);border-radius:12px;padding:16px;max-height:400px;overflow-y:auto}
+.msg{margin-bottom:12px;padding:10px 14px;border-radius:10px;font-size:.9rem;line-height:1.6;max-width:85%}
+.msg.ai{background:rgba(0,245,255,0.08);border:1px solid var(--border);color:var(--dim)}
+.msg.user{background:rgba(0,102,255,0.15);margin-left:auto;color:#fff}
+.quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.quick-btn{padding:6px 14px;border-radius:16px;border:1px solid var(--border);background:rgba(0,245,255,0.05);color:var(--cyan);font-size:.82rem;cursor:pointer;transition:.3s}
+.quick-btn:hover{background:rgba(0,245,255,0.15)}
+.tree-item{padding:8px 12px;color:var(--dim);font-size:.9rem;border-left:2px solid var(--border);margin-left:12px;margin-bottom:4px}
+.tree-item.sub{margin-left:32px;font-size:.85rem}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.status-item{background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.2);border-radius:10px;padding:14px;text-align:center}
+.status-item .check{font-size:1.5rem;margin-bottom:6px}
+.status-item .name{color:var(--dim);font-size:.85rem}
+.project-card{background:rgba(0,245,255,0.05);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.project-card h4{color:#fff;margin-bottom:6px;font-size:.95rem}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+@media(max-width:768px){.sidebar{transform:translateX(-240px)}.main{margin-left:0}.grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo">🏥 康臣药业 × 钉钉AI</div>
+<ul class="nav">
+<li><a class="active" onclick="sw('home')"><span class="icon">📊</span>工作台首页</a></li>
+<li><a onclick="sw('portal')"><span class="icon">🏢</span>集团统一门户</a></li>
+<li><a onclick="sw('ai')"><span class="icon">🤖</span>AI研发助手</a></li>
+<li><a onclick="sw('sales')"><span class="icon">📈</span>经销商数据看板</a></li>
+<li><a onclick="sw('security')"><span class="icon">🔒</span>安全合规中心</a></li>
+<li><a onclick="sw('global')"><span class="icon">🌍</span>国际化协作</a></li>
+<li><a onclick="sw('tb')"><span class="icon">📋</span>Teambition项目管理</a></li>
+</ul>
+</div>
+<div class="main">
+<div class="header">
+<h1>康臣药业集团 · 数字化工作台</h1>
+<div class="user"><div class="avatar">康</div><span style="font-size:14px">管理员</span></div>
+</div>
+<div class="content">
+
+<!-- 工作台首页 -->
+<div id="home" class="page active">
+<div class="kpis">
+<div class="kpi"><div class="v">12</div><div class="l">今日待办</div></div>
+<div class="kpi"><div class="v">8</div><div class="l">审批中</div></div>
+<div class="kpi"><div class="v">14</div><div class="l">在研项目</div></div>
+<div class="kpi"><div class="v">2.47亿</div><div class="l">本月营收</div></div>
+</div>
+<div class="grid2">
+<div class="panel"><h3>近6月营收趋势</h3><div id="chart-revenue" class="chart-box"></div></div>
+<div class="panel"><h3>快捷入口</h3>
+<div class="grid3" style="margin-top:12px">
+<div class="quick-btn" style="text-align:center;padding:20px">📝 发起审批</div>
+<div class="quick-btn" style="text-align:center;padding:20px">🤖 AI助理</div>
+<div class="quick-btn" style="text-align:center;padding:20px">📋 项目管理</div>
+<div class="quick-btn" style="text-align:center;padding:20px">📄 文档中心</div>
+<div class="quick-btn" style="text-align:center;padding:20px">👥 通讯录</div>
+<div class="quick-btn" style="text-align:center;padding:20px">📊 数据报表</div>
+</div>
+</div>
+</div>
+<div class="panel"><h3>最新公告</h3>
+<table>
+<tr><td><span class="badge b-blue">通知</span></td><td>关于2026年Q2全员上钉培训安排</td><td style="color:var(--dim)">2026-05-24</td></tr>
+<tr><td><span class="badge b-green">喜报</span></td><td>CIO王增荣获CDIE杰出数字化领袖奖</td><td style="color:var(--dim)">2026-05-22</td></tr>
+<tr><td><span class="badge b-yellow">提醒</span></td><td>尿毒清颗粒国际多中心研究启动会定于6月3日</td><td style="color:var(--dim)">2026-05-20</td></tr>
+</table>
+</div>
+</div>
+
+<!-- 集团统一门户 -->
+<div id="portal" class="page">
+<div class="grid2">
+<div class="panel"><h3>组织架构</h3>
+<div class="tree-item">🏢 康臣药业集团有限公司</div>
+<div class="tree-item sub">📍 广州康臣药业有限公司</div>
+<div class="tree-item sub">📍 康臣药业（内蒙古）有限公司</div>
+<div class="tree-item sub">📍 广西玉林制药有限公司</div>
+<div class="tree-item sub">📍 康臣药业（霍尔果斯）有限公司</div>
+<div class="tree-item sub">📍 广州康臣药物研究有限公司</div>
+<div class="tree-item sub">📍 广州康臣健康科技有限公司</div>
+</div>
+<div class="panel"><h3>统一待办中心</h3>
+<table>
+<thead><tr><th>类型</th><th>申请人</th><th>子公司</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>费用报销</td><td>李明</td><td>广州康臣</td><td><span class="badge b-yellow">待审批</span></td></tr>
+<tr><td>采购申请</td><td>张伟</td><td>内蒙古康臣</td><td><span class="badge b-yellow">待审批</span></td></tr>
+<tr><td>合同审批</td><td>王芳</td><td>玉林制药</td><td><span class="badge b-green">已通过</span></td></tr>
+<tr><td>出差申请</td><td>陈强</td><td>广州康臣</td><td><span class="badge b-yellow">待审批</span></td></tr>
+<tr><td>用章申请</td><td>赵丽</td><td>康臣药物研究</td><td><span class="badge b-green">已通过</span></td></tr>
+<tr><td>人事调动</td><td>刘洋</td><td>内蒙古康臣</td><td><span class="badge b-red">已驳回</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- AI研发助手 -->
+<div id="ai" class="page">
+<div class="grid2">
+<div class="panel"><h3>肾病药物AI知识助手</h3>
+<div class="chat-box">
+<div class="msg user">尿毒清颗粒最新临床研究进展？</div>
+<div class="msg ai"><strong>📋 尿毒清颗粒临床研究最新进展：</strong><br><br>1. <strong>国际多中心研究：</strong>与世界中医药学会联合会合作，已在日本、韩国、新加坡启动III期临床<br>2. <strong>循证医学证据：</strong>纳入《中成药治疗慢性肾脏病临床应用指南》唯一"强推荐"级用药<br>3. <strong>机制研究：</strong>与药明康德合作完成肠道菌群调节机制研究，论文发表于Journal of Ethnopharmacology<br>4. <strong>真实世界研究：</strong>覆盖全国32家三甲医院，累计入组8,600例患者<br>5. <strong>2024年销售：</strong>18.8亿元，肾病口服中成药市场首位</div>
+<div class="msg user">LIMS系统最近有什么异常实验数据？</div>
+<div class="msg ai"><strong>⚠️ LIMS异常预警（近7天）：</strong><br><br>• 批次KC-2026-0518：含量测定偏差+2.3%，已触发OOS调查<br>• 批次NM-2026-0521：溶出度测试RSD超标，建议复检<br>• 其余批次均在合格范围内</div>
+</div>
+<div class="quick-btns">
+<div class="quick-btn">尿毒清颗粒最新临床研究进展？</div>
+<div class="quick-btn">LIMS系统最近有什么异常？</div>
+<div class="quick-btn">益肾化湿颗粒竞品分析</div>
+<div class="quick-btn">在研项目进度汇总</div>
+</div>
+</div>
+<div class="panel"><h3>LIMS实验报告推送</h3>
+<table>
+<thead><tr><th>报告编号</th><th>产品</th><th>检测项</th><th>结果</th><th>日期</th></tr></thead>
+<tbody>
+<tr><td>RPT-2026-0524</td><td>尿毒清颗粒</td><td>含量测定</td><td><span class="badge b-green">合格</span></td><td>05-24</td></tr>
+<tr><td>RPT-2026-0523</td><td>钆喷酸葡胺</td><td>无菌检查</td><td><span class="badge b-green">合格</span></td><td>05-23</td></tr>
+<tr><td>RPT-2026-0522</td><td>益肾化湿颗粒</td><td>溶出度</td><td><span class="badge b-green">合格</span></td><td>05-22</td></tr>
+<tr><td>RPT-2026-0521</td><td>尿毒清颗粒</td><td>微生物限度</td><td><span class="badge b-yellow">复检</span></td><td>05-21</td></tr>
+<tr><td>RPT-2026-0520</td><td>碘帕醇注射液</td><td>pH值</td><td><span class="badge b-green">合格</span></td><td>05-20</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- 经销商数据看板 -->
+<div id="sales" class="page">
+<div class="kpis">
+<div class="kpi"><div class="v">18.8亿</div><div class="l">尿毒清年销售额</div></div>
+<div class="kpi"><div class="v">1,286</div><div class="l">活跃经销商</div></div>
+<div class="kpi"><div class="v">32</div><div class="l">覆盖省份</div></div>
+<div class="kpi"><div class="v">+14.6%</div><div class="l">同比增长</div></div>
+</div>
+<div class="grid2">
+<div class="panel"><h3>产品销售占比</h3><div id="chart-pie" class="chart-box"></div></div>
+<div class="panel"><h3>TOP10经销商</h3>
+<table>
+<thead><tr><th>排名</th><th>经销商</th><th>区域</th><th>销售额(万)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>国药控股广东</td><td>广东</td><td>8,620</td></tr>
+<tr><td>2</td><td>华润医药北京</td><td>北京</td><td>7,340</td></tr>
+<tr><td>3</td><td>上海医药集团</td><td>上海</td><td>6,890</td></tr>
+<tr><td>4</td><td>九州通医药</td><td>湖北</td><td>5,720</td></tr>
+<tr><td>5</td><td>广州医药有限</td><td>广东</td><td>5,180</td></tr>
+<tr><td>6</td><td>南京医药股份</td><td>江苏</td><td>4,650</td></tr>
+<tr><td>7</td><td>浙江英特药业</td><td>浙江</td><td>4,230</td></tr>
+<tr><td>8</td><td>四川科伦医药</td><td>四川</td><td>3,890</td></tr>
+<tr><td>9</td><td>山东瑞康医药</td><td>山东</td><td>3,560</td></tr>
+<tr><td>10</td><td>天津医药集团</td><td>天津</td><td>3,210</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- 安全合规中心 -->
+<div id="security" class="page">
+<div class="panel"><h3>数据安全状态</h3>
+<div class="status-grid">
+<div class="status-item"><div class="check">✅</div><div class="name">全局水印</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">截屏禁止</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">录屏禁止</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">专属存储</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">审计日志</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">暗水印溯源</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">离职数据清空</div></div>
+<div class="status-item"><div class="check">✅</div><div class="name">企业密钥自管</div></div>
+</div>
+</div>
+<div class="panel"><h3>最近安全事件</h3>
+<table>
+<thead><tr><th>时间</th><th>类型</th><th>描述</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>05-24 14:32</td><td>异常登录</td><td>IP地址异常（境外），已自动拦截</td><td><span class="badge b-green">已处理</span></td></tr>
+<tr><td>05-23 09:15</td><td>文件外发</td><td>研发部尝试外发加密文档，已拦截</td><td><span class="badge b-green">已处理</span></td></tr>
+<tr><td>05-22 16:48</td><td>权限变更</td><td>财务部批量修改数据权限，已审批</td><td><span class="badge b-blue">已记录</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- 国际化协作 -->
+<div id="global" class="page">
+<div class="panel"><h3>多语言门户</h3>
+<div class="quick-btns" style="margin-bottom:20px">
+<div class="quick-btn" style="background:rgba(0,245,255,0.15)">🇨🇳 中文</div>
+<div class="quick-btn">🇬🇧 English</div>
+<div class="quick-btn">🇯🇵 日本語</div>
+</div>
+</div>
+<div class="grid2">
+<div class="panel"><h3>尿毒清国际多中心研究</h3>
+<div class="project-card"><h4>🇯🇵 日本中心 - 东京大学附属医院</h4><p style="color:var(--dim);font-size:.88rem">III期临床 | PI: Prof. Tanaka | 入组进度: 78/120</p><div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div></div>
+<div class="project-card"><h4>🇰🇷 韩国中心 - 首尔国立大学医院</h4><p style="color:var(--dim);font-size:.88rem">III期临床 | PI: Prof. Kim | 入组进度: 45/100</p><div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div></div>
+<div class="project-card"><h4>🇸🇬 新加坡中心 - NUH</h4><p style="color:var(--dim);font-size:.88rem">II期临床 | PI: Dr. Lim | 入组进度: 32/60</p><div class="progress-bar"><div class="progress-fill" style="width:53%"></div></div></div>
+</div>
+<div class="panel"><h3>AI听记 - 最近会议转写</h3>
+<table>
+<thead><tr><th>会议</th><th>语言</th><th>时长</th><th>日期</th></tr></thead>
+<tbody>
+<tr><td>尿毒清国际研究周会</td><td><span class="badge b-blue">中/英</span></td><td>45min</td><td>05-24</td></tr>
+<tr><td>日本中心PI沟通会</td><td><span class="badge b-blue">日/英</span></td><td>32min</td><td>05-23</td></tr>
+<tr><td>集团月度经营分析会</td><td><span class="badge b-green">中文</span></td><td>90min</td><td>05-22</td></tr>
+<tr><td>韩国中心伦理委员会</td><td><span class="badge b-blue">韩/英</span></td><td>60min</td><td>05-21</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Teambition项目管理 -->
+<div id="tb" class="page">
+<div class="kpis">
+<div class="kpi"><div class="v">14</div><div class="l">在研项目总数</div></div>
+<div class="kpi"><div class="v">6</div><div class="l">创新药</div></div>
+<div class="kpi"><div class="v">8</div><div class="l">仿制药</div></div>
+<div class="kpi"><div class="v">3</div><div class="l">国际合作</div></div>
+</div>
+<div class="panel"><h3>在研项目看板</h3>
+<div class="grid3">
+<div class="project-card"><h4>💊 KC-001 肾病新药</h4><p style="color:var(--dim);font-size:.85rem">创新药 | II期临床 | 负责人: 张博士</p><div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 40%</p></div>
+<div class="project-card"><h4>💊 KC-002 肝病新药</h4><p style="color:var(--dim);font-size:.85rem">创新药 | 临床前 | 负责人: 李博士</p><div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 20%</p></div>
+<div class="project-card"><h4>💊 KC-003 对比剂仿制</h4><p style="color:var(--dim);font-size:.85rem">仿制药 | BE试验 | 负责人: 王研究员</p><div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 65%</p></div>
+<div class="project-card"><h4>💊 KC-004 妇儿新药</h4><p style="color:var(--dim);font-size:.85rem">创新药 | I期临床 | 负责人: 赵博士</p><div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 30%</p></div>
+<div class="project-card"><h4>🤝 药明康德合作项目</h4><p style="color:var(--dim);font-size:.85rem">跨组织协同 | 3个子项目 | 联合团队</p><div class="progress-bar"><div class="progress-fill" style="width:55%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 55%</p></div>
+<div class="project-card"><h4>💊 KC-006 骨伤新药</h4><p style="color:var(--dim);font-size:.85rem">创新药 | 临床前 | 负责人: 陈研究员</p><div class="progress-bar"><div class="progress-fill" style="width:15%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 15%</p></div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+function sw(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));document.getElementById(id).classList.add('active');event.currentTarget.classList.add('active')}
+// ECharts
+var c1=echarts.init(document.getElementById('chart-revenue'));
+c1.setOption({tooltip:{trigger:'axis'},grid:{left:'10%',right:'5%',top:'15%',bottom:'15%'},xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',axisLabel:{color:'#a0aec0',formatter:'{value}亿'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'营收',type:'line',smooth:true,data:[2.31,2.18,2.52,2.41,2.47,2.58],areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,245,255,0.3)'},{offset:1,color:'rgba(0,245,255,0)'}]}},lineStyle:{color:'#00f5ff',width:3},itemStyle:{color:'#00f5ff'}}]});
+var c2=echarts.init(document.getElementById('chart-pie'));
+c2.setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['40%','70%'],data:[{value:63,name:'尿毒清颗粒',itemStyle:{color:'#00f5ff'}},{value:18,name:'对比剂',itemStyle:{color:'#0066ff'}},{value:8,name:'妇儿系列',itemStyle:{color:'#7b61ff'}},{value:6,name:'骨伤系列',itemStyle:{color:'#00ff88'}},{value:5,name:'其他',itemStyle:{color:'#ffaa00'}}],label:{color:'#a0aec0',fontSize:12}}]});
+window.addEventListener('resize',function(){c1.resize();c2.resize()});
+</script>
+</body>
+</html>

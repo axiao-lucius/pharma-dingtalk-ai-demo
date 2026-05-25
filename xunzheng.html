@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>循证医药 × 钉钉AI 数字化工作台</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e27;--bg2:#121842;--card:rgba(30,38,85,0.6);--green:#00ff88;--teal:#14b8a6;--text:#fff;--dim:#a0aec0;--border:rgba(0,255,136,0.2);--warn:#ffaa00;--danger:#ff4466;--blue:#3b82f6}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:linear-gradient(135deg,#0a0e27,#0a1a1a);color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:240px;background:linear-gradient(180deg,var(--bg2),var(--bg));border-right:1px solid var(--border);position:fixed;height:100vh;overflow-y:auto;z-index:100;padding:20px 0}
+.logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px;font-size:16px;font-weight:800;background:linear-gradient(90deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav{list-style:none}.nav li{margin:4px 10px}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 14px;color:var(--dim);text-decoration:none;border-radius:10px;transition:.3s;cursor:pointer;border:1px solid transparent;font-size:14px}
+.nav a:hover,.nav a.active{background:rgba(0,255,136,0.1);color:var(--green);border-color:var(--border)}
+.main{flex:1;margin-left:240px;min-height:100vh}
+.header{background:var(--card);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.header h1{font-size:20px;background:linear-gradient(90deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.user{display:flex;align-items:center;gap:10px;padding:6px 14px;background:var(--card);border-radius:18px;border:1px solid var(--border)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.content{padding:24px 28px}.page{display:none}.page.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.kpi .v{font-size:2rem;font-weight:800;background:linear-gradient(90deg,var(--green),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .l{color:var(--dim);font-size:.85rem;margin-top:4px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.panel h3{color:var(--green);font-size:1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h3::before{content:'▸';color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.chart-box{height:300px;width:100%}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:rgba(0,255,136,0.1);color:var(--green);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--dim)}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:600}
+.b-green{background:rgba(0,255,136,0.15);color:var(--green)}.b-yellow{background:rgba(255,170,0,0.15);color:var(--warn)}.b-red{background:rgba(255,68,102,0.15);color:var(--danger)}.b-blue{background:rgba(59,130,246,0.15);color:var(--blue)}
+.chat-box{background:rgba(0,0,0,0.3);border-radius:12px;padding:16px;max-height:400px;overflow-y:auto}
+.msg{margin-bottom:12px;padding:10px 14px;border-radius:10px;font-size:.9rem;line-height:1.6;max-width:85%}
+.msg.ai{background:rgba(0,255,136,0.08);border:1px solid var(--border);color:var(--dim)}
+.msg.user{background:rgba(0,255,136,0.15);margin-left:auto;color:#fff}
+.quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.quick-btn{padding:6px 14px;border-radius:16px;border:1px solid var(--border);background:rgba(0,255,136,0.05);color:var(--green);font-size:.82rem;cursor:pointer}
+.project-card{background:rgba(0,255,136,0.05);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.project-card h4{color:#fff;margin-bottom:6px;font-size:.95rem}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--teal))}
+@media(max-width:768px){.sidebar{transform:translateX(-240px)}.main{margin-left:0}.grid2,.grid3{grid-template-columns:1fr}}</style></head>
+<body>
+<div class="sidebar"><div class="logo">🔬 循证医药 × 钉钉AI</div>
+<ul class="nav">
+<li><a class="active" onclick="sw('home')"><span class="icon">📊</span>工作台首页</a></li>
+<li><a onclick="sw('tb')"><span class="icon">📋</span>临床试验项目管理</a></li>
+<li><a onclick="sw('report')"><span class="icon">📝</span>移动填报中心</a></li>
+<li><a onclick="sw('ai')"><span class="icon">🤖</span>GCP知识库+AI</a></li>
+<li><a onclick="sw('fourforce')"><span class="icon">🎯</span>四力模型分析</a></li>
+<li><a onclick="sw('collab')"><span class="icon">🤝</span>跨组织协同</a></li>
+<li><a onclick="sw('smo')"><span class="icon">👩‍⚕️</span>SMO服务管理</a></li>
+</ul></div>
+<div class="main"><div class="header"><h1>循证医药科技 · 数字化工作台</h1>
+<div class="user"><div class="avatar">循</div><span style="font-size:14px">管理员</span></div></div>
+<div class="content">
+
+<div id="home" class="page active">
+<div class="kpis"><div class="kpi"><div class="v">18</div><div class="l">进行中项目</div></div><div class="kpi"><div class="v">42</div><div class="l">本月监查访视</div></div><div class="kpi"><div class="v">3</div><div class="l">待处理CAPA</div></div><div class="kpi"><div class="v">12</div><div class="l">服务客户数</div></div></div>
+<div class="grid2"><div class="panel"><h3>近6月项目交付量趋势</h3><div id="chart-delivery" class="chart-box"></div></div>
+<div class="panel"><h3>快捷入口</h3><div class="grid3" style="margin-top:12px"><div class="quick-btn" style="text-align:center;padding:20px">📋 新建项目</div><div class="quick-btn" style="text-align:center;padding:20px">📝 提交监查报告</div><div class="quick-btn" style="text-align:center;padding:20px">📚 GCP知识库</div><div class="quick-btn" style="text-align:center;padding:20px">🤖 AI助理</div><div class="quick-btn" style="text-align:center;padding:20px">🎯 四力评估</div><div class="quick-btn" style="text-align:center;padding:20px">👥 跨组织协同</div></div></div></div>
+<div class="panel"><h3>最新公告</h3><table><tr><td><span class="badge b-green">通知</span></td><td>片仔癀胶囊IV期临床启动会定于6月5日</td><td style="color:var(--dim)">2026-05-24</td></tr><tr><td><span class="badge b-blue">培训</span></td><td>GCP新规解读线上培训（全员必修）</td><td style="color:var(--dim)">2026-05-23</td></tr><tr><td><span class="badge b-yellow">提醒</span></td><td>滋肾育胎丸项目中期总结报告截止5月30日</td><td style="color:var(--dim)">2026-05-22</td></tr></table></div>
+</div>
+
+<div id="tb" class="page">
+<div class="kpis"><div class="kpi"><div class="v">18</div><div class="l">进行中项目</div></div><div class="kpi"><div class="v">5</div><div class="l">III期临床</div></div><div class="kpi"><div class="v">8</div><div class="l">IV期/上市后</div></div><div class="kpi"><div class="v">5</div><div class="l">I/II期</div></div></div>
+<div class="panel"><h3>项目看板（按阶段分类）</h3>
+<div class="grid3">
+<div class="project-card"><h4>💊 片仔癀胶囊 IV期临床</h4><p style="color:var(--dim);font-size:.85rem">客户：片仔癀集团 | 多中心 | 12家医院</p><div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">入组进度 72% (864/1200)</p></div>
+<div class="project-card"><h4>💊 滋肾育胎丸 上市后评价</h4><p style="color:var(--dim);font-size:.85rem">客户：广药集团 | RWS | 8家中心</p><div class="progress-bar"><div class="progress-fill" style="width:58%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">数据收集 58%</p></div>
+<div class="project-card"><h4>💊 人参次苷滴丸 II期</h4><p style="color:var(--dim);font-size:.85rem">客户：天士力 | 1.2类新药 | 6家中心</p><div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">入组进度 35% (105/300)</p></div>
+<div class="project-card"><h4>💊 某创新中药 III期</h4><p style="color:var(--dim);font-size:.85rem">客户：以岭药业 | 多中心 | 20家医院</p><div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">入组进度 45%</p></div>
+<div class="project-card"><h4>💊 经典名方制剂 I期</h4><p style="color:var(--dim);font-size:.85rem">客户：康臣药业 | PK/PD研究</p><div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">进度 20%</p></div>
+<div class="project-card"><h4>💊 中药注射剂再评价</h4><p style="color:var(--dim);font-size:.85rem">客户：正大青春宝 | 安全性监测</p><div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div><p style="color:var(--dim);font-size:.8rem;margin-top:6px">数据清理 82%</p></div>
+</div></div>
+</div>
+
+<div id="report" class="page">
+<div class="grid2">
+<div class="panel"><h3>不良反应报告提交</h3>
+<div style="background:rgba(0,0,0,0.2);border-radius:10px;padding:16px;margin-bottom:12px">
+<p style="color:var(--dim);font-size:.88rem;margin-bottom:8px"><strong>SAE编号：</strong>SAE-2026-0524-003</p>
+<p style="color:var(--dim);font-size:.88rem;margin-bottom:8px"><strong>项目名称：</strong>片仔癀胶囊IV期临床</p>
+<p style="color:var(--dim);font-size:.88rem;margin-bottom:8px"><strong>严重程度：</strong><span class="badge b-red">严重</span></p>
+<p style="color:var(--dim);font-size:.88rem;margin-bottom:8px"><strong>报告时限：</strong>24小时内（剩余18小时）</p>
+<p style="color:var(--dim);font-size:.88rem"><strong>状态：</strong><span class="badge b-yellow">待提交</span></p>
+</div>
+<div class="quick-btns"><div class="quick-btn">📝 新建SAE报告</div><div class="quick-btn">📋 查看待提交列表</div><div class="quick-btn">📊 SAE统计报表</div></div>
+</div>
+<div class="panel"><h3>各类报告提交状态</h3><div id="chart-report" class="chart-box"></div></div>
+</div>
+<div class="panel"><h3>监查访视记录</h3>
+<table><thead><tr><th>日期</th><th>项目</th><th>中心</th><th>CRA</th><th>发现项</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>05-24</td><td>片仔癀IV期</td><td>北京协和医院</td><td>刘芳</td><td>2项Minor</td><td><span class="badge b-green">已关闭</span></td></tr>
+<tr><td>05-23</td><td>滋肾育胎丸RWS</td><td>广州中医药大学一附院</td><td>陈明</td><td>1项Major</td><td><span class="badge b-yellow">跟进中</span></td></tr>
+<tr><td>05-22</td><td>人参次苷滴丸II期</td><td>天津中医药大学一附院</td><td>王丽</td><td>0项</td><td><span class="badge b-green">已完成</span></td></tr>
+<tr><td>05-21</td><td>片仔癀IV期</td><td>上海龙华医院</td><td>张强</td><td>3项Minor</td><td><span class="badge b-yellow">跟进中</span></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<div id="ai" class="page">
+<div class="grid2">
+<div class="panel"><h3>GCP法规AI助手</h3>
+<div class="chat-box">
+<div class="msg user">SAE报告时限要求是什么？</div>
+<div class="msg ai"><strong>📋 SAE报告时限要求（ICH-GCP E6(R2)）：</strong><br><br>1. <strong>致死或危及生命的SAE：</strong>获知后<strong>7天内</strong>向申办者和伦理委员会报告，随后8天内提交完整随访信息<br>2. <strong>其他SAE：</strong>获知后<strong>15天内</strong>报告<br>3. <strong>SUSAR（可疑非预期严重不良反应）：</strong>首次发生后7天/15天内报告<br>4. <strong>NMPA要求：</strong>药物临床试验期间SAE需在获知后24小时内通过药物临床试验登记与信息公示平台报告<br><br>⚠️ 注意：具体项目可能有更严格的内部时限要求，请查阅项目SOP。</div>
+<div class="msg user">中药1.2类新药申报需要哪些资料？</div>
+<div class="msg ai"><strong>📋 中药1.2类新药申报资料要点：</strong><br><br>1. <strong>人用经验证据：</strong>不少于100例临床使用数据，需有规范的病历记录<br>2. <strong>药学研究：</strong>药材基原鉴定、制备工艺验证、质量标准建立<br>3. <strong>非临床研究：</strong>主要药效学、毒理学（急性/长期毒性）<br>4. <strong>临床试验：</strong>I期耐受性+PK，II期探索性疗效，III期确证性试验<br>5. <strong>特别提示：</strong>基于人用经验的审评路径可减免部分非临床研究</div>
+</div>
+<div class="quick-btns"><div class="quick-btn">SAE报告时限要求？</div><div class="quick-btn">中药1.2类新药申报资料</div><div class="quick-btn">GCP监查员职责</div><div class="quick-btn">知情同意书要素</div></div>
+</div>
+<div class="panel"><h3>法规文档库</h3>
+<div style="padding:8px 12px;border-left:2px solid var(--border);margin-bottom:6px;color:var(--dim)">📁 ICH-GCP E6(R2) 中文版</div>
+<div style="padding:8px 12px;border-left:2px solid var(--border);margin-bottom:6px;color:var(--dim)">📁 NMPA药物临床试验质量管理规范</div>
+<div style="padding:8px 12px;border-left:2px solid var(--border);margin-bottom:6px;color:var(--dim)">📁 中药注册分类及申报资料要求</div>
+<div style="padding:8px 12px;border-left:2px solid var(--border);margin-bottom:6px;color:var(--dim)">📁 EMA GCP指南</div>
+<div style="padding:8px 12px;border-left:2px solid var(--border);margin-bottom:6px;color:var(--dim)">📁 赫尔辛基宣言（2013版）</div>
+<div style="padding:8px 12px;border-left:2px solid var(--border);margin-bottom:6px;color:var(--dim)">📁 项目SOP模板库</div>
+</div>
+</div>
+</div>
+
+<div id="fourforce" class="page">
+<div class="grid2">
+<div class="panel"><h3>四力模型雷达图 - 片仔癀胶囊</h3><div id="chart-radar" class="chart-box"></div></div>
+<div class="panel"><h3>培育效果趋势</h3><div id="chart-trend" class="chart-box"></div></div>
+</div>
+<div class="panel"><h3>客户项目四力评估对比</h3>
+<table><thead><tr><th>产品</th><th>客户</th><th>产品力</th><th>准入力</th><th>学术力</th><th>营销力</th><th>综合评分</th></tr></thead>
+<tbody>
+<tr><td>片仔癀胶囊</td><td>片仔癀集团</td><td>92</td><td>88</td><td>85</td><td>90</td><td><strong>88.8</strong></td></tr>
+<tr><td>滋肾育胎丸</td><td>广药集团</td><td>78</td><td>72</td><td>68</td><td>75</td><td><strong>73.3</strong></td></tr>
+<tr><td>人参次苷滴丸</td><td>天士力</td><td>85</td><td>65</td><td>72</td><td>60</td><td><strong>70.5</strong></td></tr>
+<tr><td>尿毒清颗粒</td><td>康臣药业</td><td>90</td><td>85</td><td>88</td><td>82</td><td><strong>86.3</strong></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<div id="collab" class="page">
+<div class="panel"><h3>客户企业协同空间</h3>
+<div class="grid3">
+<div class="project-card"><h4>🏢 天士力集团</h4><p style="color:var(--dim);font-size:.85rem">3个合作项目 | 最近活跃：今天</p><div class="quick-btns" style="margin-top:8px"><div class="quick-btn">进入空间</div></div></div>
+<div class="project-card"><h4>🏢 片仔癀集团</h4><p style="color:var(--dim);font-size:.85rem">2个合作项目 | 最近活跃：昨天</p><div class="quick-btns" style="margin-top:8px"><div class="quick-btn">进入空间</div></div></div>
+<div class="project-card"><h4>🏢 广药集团</h4><p style="color:var(--dim);font-size:.85rem">4个合作项目 | 最近活跃：今天</p><div class="quick-btns" style="margin-top:8px"><div class="quick-btn">进入空间</div></div></div>
+<div class="project-card"><h4>🏢 康臣药业</h4><p style="color:var(--dim);font-size:.85rem">1个合作项目 | 最近活跃：3天前</p><div class="quick-btns" style="margin-top:8px"><div class="quick-btn">进入空间</div></div></div>
+<div class="project-card"><h4>🏢 以岭药业</h4><p style="color:var(--dim);font-size:.85rem">2个合作项目 | 最近活跃：今天</p><div class="quick-btns" style="margin-top:8px"><div class="quick-btn">进入空间</div></div></div>
+<div class="project-card"><h4>🏢 正大青春宝</h4><p style="color:var(--dim);font-size:.85rem">1个合作项目 | 最近活跃：2天前</p><div class="quick-btns" style="margin-top:8px"><div class="quick-btn">进入空间</div></div></div>
+</div></div>
+<div class="panel"><h3>共享文档空间</h3>
+<table><thead><tr><th>文档</th><th>所属项目</th><th>更新人</th><th>更新时间</th></tr></thead>
+<tbody>
+<tr><td>片仔癀IV期-监查计划v3.2</td><td>片仔癀胶囊</td><td>刘芳</td><td>05-24 16:30</td></tr>
+<tr><td>滋肾育胎丸-RWS方案终稿</td><td>滋肾育胎丸</td><td>陈明</td><td>05-23 14:20</td></tr>
+<tr><td>GCP培训课件-2026版</td><td>通用</td><td>周杰</td><td>05-22 10:00</td></tr>
+<tr><td>四力模型评估工具v2.0</td><td>方法论</td><td>周杰</td><td>05-20 09:30</td></tr>
+</tbody></table>
+</div>
+</div>
+
+<div id="smo" class="page">
+<div class="kpis"><div class="kpi"><div class="v">28</div><div class="l">在岗CRC</div></div><div class="kpi"><div class="v">156</div><div class="l">本月访视次数</div></div><div class="kpi"><div class="v">98.2%</div><div class="l">数据完整率</div></div><div class="kpi"><div class="v">0.3%</div><div class="l">方案偏离率</div></div></div>
+<div class="grid2">
+<div class="panel"><h3>质量指标仪表盘</h3><div id="chart-quality" class="chart-box"></div></div>
+<div class="panel"><h3>CRC工作量排名</h3>
+<table><thead><tr><th>排名</th><th>CRC姓名</th><th>负责项目</th><th>本月访视</th><th>数据完整率</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>李小红</td><td>片仔癀IV期</td><td>28次</td><td>99.5%</td></tr>
+<tr><td>2</td><td>王美玲</td><td>滋肾育胎丸RWS</td><td>24次</td><td>98.8%</td></tr>
+<tr><td>3</td><td>陈晓燕</td><td>人参次苷滴丸II期</td><td>22次</td><td>99.1%</td></tr>
+<tr><td>4</td><td>赵丽华</td><td>以岭创新中药III期</td><td>20次</td><td>97.6%</td></tr>
+<tr><td>5</td><td>刘婷婷</td><td>中药注射剂再评价</td><td>18次</td><td>98.3%</td></tr>
+</tbody></table>
+</div>
+</div>
+<div class="panel"><h3>监查员排班日历（本周）</h3>
+<table><thead><tr><th>CRA/CRC</th><th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th></tr></thead>
+<tbody>
+<tr><td>刘芳</td><td>北京协和</td><td>北京协和</td><td>北大第一医院</td><td>文档整理</td><td>周报</td></tr>
+<tr><td>陈明</td><td>广中医一附院</td><td>广中医一附院</td><td>中山肿瘤</td><td>中山肿瘤</td><td>周报</td></tr>
+<tr><td>王丽</td><td>天津中医药</td><td>文档整理</td><td>天津中医药</td><td>北京中医院</td><td>周报</td></tr>
+<tr><td>张强</td><td>上海龙华</td><td>上海龙华</td><td>上海曙光</td><td>文档整理</td><td>周报</td></tr>
+</tbody></table>
+</div>
+</div>
+
+</div></div>
+<script>
+function sw(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav a').forEach(a=>a.classList.remove('active'));document.getElementById(id).classList.add('active');event.currentTarget.classList.add('active')}
+var c1=echarts.init(document.getElementById('chart-delivery'));
+c1.setOption({tooltip:{trigger:'axis'},grid:{left:'10%',right:'5%',top:'15%',bottom:'15%'},xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',axisLabel:{color:'#a0aec0'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'项目交付量',type:'bar',data:[12,14,16,15,18,20],itemStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'#00ff88'},{offset:1,color:'#14b8a6'}]}}}]});
+var c2=echarts.init(document.getElementById('chart-report'));
+c2.setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['40%','70%'],data:[{value:86,name:'已提交',itemStyle:{color:'#00ff88'}},{value:8,name:'待提交',itemStyle:{color:'#ffaa00'}},{value:3,name:'逾期',itemStyle:{color:'#ff4466'}},{value:3,name:'草稿',itemStyle:{color:'#64748b'}}],label:{color:'#a0aec0',fontSize:12}}]});
+var c3=echarts.init(document.getElementById('chart-radar'));
+c3.setOption({radar:{indicator:[{name:'产品力',max:100},{name:'准入力',max:100},{name:'学术力',max:100},{name:'营销力',max:100}],axisName:{color:'#a0aec0'},splitArea:{areaStyle:{color:['rgba(0,255,136,0.02)','rgba(0,255,136,0.05)']}},splitLine:{lineStyle:{color:'rgba(0,255,136,0.15)'}}},series:[{type:'radar',data:[{value:[92,88,85,90],name:'片仔癀胶囊',areaStyle:{color:'rgba(0,255,136,0.2)'},lineStyle:{color:'#00ff88'},itemStyle:{color:'#00ff88'}},{value:[78,72,68,75],name:'滋肾育胎丸',areaStyle:{color:'rgba(20,184,166,0.2)'},lineStyle:{color:'#14b8a6'},itemStyle:{color:'#14b8a6'}}]}]});
+var c4=echarts.init(document.getElementById('chart-trend'));
+c4.setOption({tooltip:{trigger:'axis'},legend:{data:['产品力','准入力','学术力','营销力'],textStyle:{color:'#a0aec0'}},grid:{left:'10%',right:'5%',top:'20%',bottom:'15%'},xAxis:{type:'category',data:['2024Q1','2024Q2','2024Q3','2024Q4','2025Q1','2025Q2'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',max:100,axisLabel:{color:'#a0aec0'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'产品力',type:'line',smooth:true,data:[75,78,82,85,88,92],lineStyle:{color:'#00ff88'}},{name:'准入力',type:'line',smooth:true,data:[60,65,70,75,82,88],lineStyle:{color:'#14b8a6'}},{name:'学术力',type:'line',smooth:true,data:[55,60,65,72,78,85],lineStyle:{color:'#3b82f6'}},{name:'营销力',type:'line',smooth:true,data:[65,68,72,78,85,90],lineStyle:{color:'#f59e0b'}}]});
+var c5=echarts.init(document.getElementById('chart-quality'));
+c5.setOption({tooltip:{trigger:'axis'},grid:{left:'12%',right:'5%',top:'15%',bottom:'15%'},xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月'],axisLabel:{color:'#a0aec0'}},yAxis:{type:'value',min:90,max:100,axisLabel:{color:'#a0aec0',formatter:'{value}%'},splitLine:{lineStyle:{color:'rgba(255,255,255,0.05)'}}},series:[{name:'数据完整率',type:'line',smooth:true,data:[96.5,97.2,97.8,98.0,98.2,98.5],lineStyle:{color:'#00ff88',width:3},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,255,136,0.3)'},{offset:1,color:'rgba(0,255,136,0)'}]}}},{name:'方案合规率',type:'line',smooth:true,data:[98.8,99.0,99.2,99.5,99.7,99.7],lineStyle:{color:'#14b8a6',width:3}}]});
+window.addEventListener('resize',function(){c1.resize();c2.resize();c3.resize();c4.resize();c5.resize()});
+</script></body></html>
